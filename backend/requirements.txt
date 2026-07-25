@@ -11,7 +11,7 @@ charset-normalizer==3.4.9
 click==8.4.2
 cloudinary==1.45.0
 colorama==0.4.6
-dnspython==2.8.0
+dnspython==2.8.0a
 ecdsa==0.19.2
 email-validator==2.3.0
 fastapi==0.139.0

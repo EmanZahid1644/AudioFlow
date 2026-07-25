@@ -31,23 +31,12 @@ from email_validator import (
 
 from datetime import datetime
 
-import os
 import shutil
-
+import tempfile
+import os
 
 
 app = FastAPI()
-
-
-
-UPLOAD_DIR = "uploads"
-
-os.makedirs(
-    UPLOAD_DIR,
-    exist_ok=True
-)
-
-
 
 
 # =========================
@@ -55,20 +44,14 @@ os.makedirs(
 # =========================
 
 class RegisterUser(BaseModel):
-
     name: str
     email: str
     password: str
 
 
-
 class LoginUser(BaseModel):
-
     email: str
     password: str
-
-
-
 
 
 # =========================
@@ -80,38 +63,25 @@ async def get_current_user(
 ):
 
     if not authorization:
-
         raise HTTPException(
             status_code=401,
             detail="Authorization token missing"
         )
-
-
 
     token = authorization.replace(
         "Bearer ",
         ""
     )
 
-
-
     email = verify_token(token)
 
-
-
     if not email:
-
         raise HTTPException(
             status_code=401,
             detail="Invalid token"
         )
 
-
-
     return email
-
-
-
 
 
 # =========================
@@ -126,9 +96,6 @@ async def root():
     }
 
 
-
-
-
 # =========================
 # Register
 # =========================
@@ -137,9 +104,6 @@ async def root():
 async def register(
     user: RegisterUser
 ):
-
-
-    # Email validation
 
     try:
 
@@ -150,45 +114,23 @@ async def register(
 
         user.email = email_info.normalized
 
-
-
     except EmailNotValidError:
 
-
         return {
-
             "success": False,
-
             "message": "Invalid email address"
-
         }
-
-
-
-
-    # Password validation
 
     valid, message = validate_password(
         user.password
     )
 
-
-
     if not valid:
 
         return {
-
             "success": False,
-
             "message": message
-
         }
-
-
-
-
-
-    # Check existing user
 
     existing_user = users_collection.find_one(
         {
@@ -196,53 +138,29 @@ async def register(
         }
     )
 
-
-
     if existing_user:
 
-
         return {
-
             "success": False,
-
             "message": "Email already registered"
-
         }
-
-
-
-
-    # Hash password
 
     hashed_password = hash_password(
         user.password
     )
 
-
-
-
     users_collection.insert_one({
 
         "name": user.name,
-
         "email": user.email,
-
         "password": hashed_password
 
     })
 
-
-
     return {
-
         "success": True,
-
         "message": "Registration Successful"
-
     }
-
-
-
 
 
 # =========================
@@ -254,28 +172,18 @@ async def login(
     user: LoginUser
 ):
 
-
     existing_user = users_collection.find_one(
         {
             "email": user.email
         }
     )
 
-
-
     if not existing_user:
 
-
         return {
-
             "success": False,
-
             "message": "Invalid Email or Password"
-
         }
-
-
-
 
     password_match = verify_password(
 
@@ -285,28 +193,16 @@ async def login(
 
     )
 
-
-
     if not password_match:
 
-
         return {
-
             "success": False,
-
             "message": "Invalid Email or Password"
-
         }
-
-
-
 
     token = create_token(
         existing_user["email"]
     )
-
-
-
 
     return {
 
@@ -327,11 +223,8 @@ async def login(
     }
 
 
-
-
-
 # =========================
-# Upload Audio Protected
+# Upload Audio
 # =========================
 
 @app.post("/receive")
@@ -343,53 +236,32 @@ async def receive_file(
 
 ):
 
+    temp_path = None
 
-    file_path = os.path.join(
+    try:
 
-        UPLOAD_DIR,
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=os.path.splitext(file.filename)[1]
+        ) as temp_file:
 
-        file.filename
+            shutil.copyfileobj(
+                file.file,
+                temp_file
+            )
 
-    )
+            temp_path = temp_file.name
 
-
-
-    with open(
-        file_path,
-        "wb"
-    ) as buffer:
-
-
-        shutil.copyfileobj(
-
-            file.file,
-
-            buffer
-
+        result = upload_audio(
+            temp_path
         )
 
+    finally:
 
-
-
-
-    result = upload_audio(
-        file_path
-    )
-
-
-
-
-
-    if os.path.exists(file_path):
-
-        os.remove(file_path)
-
-
-
-
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
 
     if not result["success"]:
-
 
         return {
 
@@ -398,10 +270,6 @@ async def receive_file(
             "message": result["error"]
 
         }
-
-
-
-
 
     audios_collection.insert_one({
 
@@ -417,10 +285,6 @@ async def receive_file(
 
     })
 
-
-
-
-
     return {
 
         "success": True,
@@ -430,9 +294,6 @@ async def receive_file(
         "url": result["url"]
 
     }
-
-
-
 
 
 # =========================
@@ -446,17 +307,13 @@ async def get_audios(
 
 ):
 
-
     audios = []
-
-
 
     for audio in audios_collection.find(
         {
             "uploaded_by": user_email
         }
     ):
-
 
         audios.append({
 
@@ -465,8 +322,6 @@ async def get_audios(
             "url": audio["url"]
 
         })
-
-
 
     return {
 
