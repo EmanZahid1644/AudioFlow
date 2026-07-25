@@ -6,7 +6,7 @@ import requests
 # CONFIG
 # =========================
 
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = "https://audio-flow-backend.vercel.app"
 
 st.set_page_config(
     page_title="AudioFlow",
