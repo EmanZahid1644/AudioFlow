@@ -37,6 +37,7 @@ from email_validator import (
 from kokoro_service import (
     generate_kokoro_audio,
     generate_kokoro_mixed_audio,
+    preload_kokoro,
     KOKORO_VOICES
 )
 
@@ -57,6 +58,13 @@ app = FastAPI(
     title="AudioFlow API",
     version="0.1.0"
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    print("[Application Startup] Initializing AudioFlow services & pre-loading Kokoro AI pipeline...", flush=True)
+    await run_in_threadpool(preload_kokoro)
+    print("[Application Startup] Kokoro AI pre-loading process completed.", flush=True)
 
 
 # =========================================================

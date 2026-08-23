@@ -21,6 +21,7 @@ except Exception as e:
 # =========================================================
 
 try:
+    # pyrefly: ignore [missing-import]
     from kokoro import KPipeline
     _HAS_KOKORO = True
     print("[Kokoro] Real Kokoro package imported successfully (_HAS_KOKORO=True)", flush=True)
@@ -258,4 +259,4 @@ def generate_kokoro_mixed_audio(
         return {
             "success": False,
             "error": f"Kokoro voice mixing failed: {str(e)}"
-        }
+        }
