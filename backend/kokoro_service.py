@@ -7,12 +7,12 @@ import traceback
 import threading
 import gc
 
-# Optimize PyTorch CPU thread count on containers like Render to reduce CPU/RAM overhead
+# Optimize PyTorch CPU thread count & memory allocation on containers like Render (512MB RAM)
 try:
     import torch
-    num_threads = min(2, os.cpu_count() or 1)
-    torch.set_num_threads(num_threads)
-    print(f"[Kokoro] PyTorch thread count set to {num_threads}", flush=True)
+    torch.set_num_threads(1)
+    torch.set_grad_enabled(False)
+    print("[Kokoro] PyTorch thread count set to 1, grad_enabled=False for 512MB RAM compatibility", flush=True)
 except Exception as e:
     print(f"[Kokoro] PyTorch thread configuration notice: {e}", flush=True)
 

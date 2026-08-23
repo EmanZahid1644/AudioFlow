@@ -62,9 +62,7 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup_event():
-    print("[Application Startup] Initializing AudioFlow services & pre-loading Kokoro AI pipeline...", flush=True)
-    await run_in_threadpool(preload_kokoro)
-    print("[Application Startup] Kokoro AI pre-loading process completed.", flush=True)
+    print("[Application Startup] AudioFlow FastAPI server online. Kokoro TTS lazy-loaded on demand with single-thread RAM optimization.", flush=True)
 
 
 # =========================================================
