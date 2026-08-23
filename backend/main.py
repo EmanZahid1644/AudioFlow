@@ -47,9 +47,7 @@ import tempfile
 import os
 import time
 import uuid
-from voice_cloning import clone_voice_from_audio
-from voice_mixing import interpolate_voice_vectors
-
+from starlette.concurrency import run_in_threadpool
 
 # =========================================================
 # FastAPI App
@@ -491,17 +489,14 @@ async def generate_voice(
 
 
     # -----------------------------------------------------
-    # Generate Audio Using Kokoro
+    # Generate Audio Using Kokoro (Threadpool Async)
     # -----------------------------------------------------
 
-    result = generate_kokoro_audio(
-
+    result = await run_in_threadpool(
+        generate_kokoro_audio,
         text=request.text,
-
         voice=request.voice,
-
         speed=request.speed
-
     )
 
 
@@ -675,7 +670,8 @@ async def _process_voice_mix(
 
     generated_path = None
     try:
-        mix_res = generate_kokoro_mixed_audio(
+        mix_res = await run_in_threadpool(
+            generate_kokoro_mixed_audio,
             text=request.text,
             voice_a=voice_a,
             voice_b=voice_b,
