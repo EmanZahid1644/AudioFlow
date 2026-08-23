@@ -17,6 +17,7 @@ email-validator==2.3.0
 requests==2.34.2
 
 pocket-tts==2.1.0
+kokoro
 scipy==1.18.0
 sentencepiece==0.2.2
 soundfile>=0.12.0
