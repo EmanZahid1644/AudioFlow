@@ -92,25 +92,23 @@ def get_pipeline():
 
 def preload_kokoro():
     """
-    Pre-load Kokoro KPipeline and voice tensors into memory at application startup.
-    This avoids HuggingFace network downloads and heavy model loading overhead during live HTTP requests,
-    preventing Render 502/504 gateway timeouts.
+    Pre-load Kokoro KPipeline & default voice ('af_heart') into memory at startup.
+    Preloading only the default voice keeps memory usage ~340MB (well below Render's 512MB limit),
+    allowing application startup to succeed cleanly on Render Free instances.
     """
     if not _HAS_KOKORO:
         print("[Kokoro Startup WARNING] Real Kokoro package not available; skipping model preload.", flush=True)
         return False
 
-    print("[Kokoro Startup] Pre-loading KPipeline & voice models...", flush=True)
+    print("[Kokoro Startup] Pre-loading KPipeline & default voice ('af_heart')...", flush=True)
     t0 = time.time()
     try:
         pipeline = get_pipeline()
-        for voice_key in KOKORO_VOICES:
-            try:
-                pipeline.load_voice(voice_key)
-                print(f"[Kokoro Startup] Voice '{voice_key}' loaded.", flush=True)
-            except Exception as ve:
-                print(f"[Kokoro Startup WARNING] Could not preload voice '{voice_key}': {ve}", file=sys.stderr, flush=True)
+        # Pre-load default voice 'af_heart' to keep memory footprint ~340MB (safely under 512MB limit)
+        pipeline.load_voice("af_heart")
+        print("[Kokoro Startup] Default voice 'af_heart' preloaded.", flush=True)
 
+        gc.collect()
         elapsed = time.time() - t0
         print(f"[Kokoro Startup] Preload completed successfully in {elapsed:.2f}s", flush=True)
         return True
