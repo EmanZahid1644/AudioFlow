@@ -24,4 +24,4 @@ cloudinary.config(
 
 )
 
-print("✅ Cloudinary Configured Successfully")
+print("Cloudinary Configured Successfully")
