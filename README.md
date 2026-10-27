@@ -1,256 +1,142 @@
-# 🎧 AudioFlow
+# AudioFlow — AI Voice Studio
 
-A secure and modern Audio Transfer Platform built with **FastAPI**, **Streamlit**, **MongoDB**, **Cloudinary**, and **JWT Authentication**.
+**AudioFlow** is a full-stack AI-powered voice studio for generating speech, cloning voices from reference audio, and creating blended voices using neural voice-vector interpolation.
 
-Users can securely register, log in, upload audio files to Cloudinary, and access their personal audio library.
+Built with **FastAPI, Streamlit, Kokoro TTS, PocketTTS, MongoDB, and Cloudinary**.
 
----
+## Features
 
-## 🚀 Features
+- **AI Voice Generation:** Convert text into speech using Kokoro TTS and available voice presets.
+- **Voice Cloning:** Generate speech using a user-provided reference voice sample through PocketTTS.
+- **Neural Voice Mixing:** Blend supported Kokoro voice representations to create customized voice combinations.
+- **User Authentication:** Registration and login using JWT-based authentication.
+- **Audio Management:** Store generated audio in Cloudinary and associated metadata in MongoDB.
+- **Interactive Interface:** Streamlit-based interface for voice workflows.
 
-- 🔐 User Registration
-- 🔑 User Login
-- 🔒 JWT Authentication & Authorization
-- 🔐 Password Hashing (bcrypt)
-- ☁️ Audio Upload to Cloudinary
-- 🎵 Personal Audio Library
-- 📂 MongoDB Database
-- 🎨 Modern Streamlit UI
-- 📱 Responsive Dashboard
+## Screenshots
 
----
+### Dashboard
+![AudioFlow Dashboard](docs/screenshots/dashboard.png)
 
-## 🛠 Tech Stack
+### Authentication
 
-### Backend
-- FastAPI
-- Python
-- MongoDB
-- PyMongo
-- Cloudinary
-- JWT Authentication
-- Passlib (bcrypt)
+**Sign In**
 
-### Frontend
-- Streamlit
-- HTML
-- CSS
+![Login](docs/screenshots/login.png)
 
----
+**Register**
 
-## 📂 Project Structure
+![Registration](docs/screenshots/register.png)
 
-```
+### AI Voice Generation
+![AI Voice Generation](docs/screenshots/voice-generation.png)
+
+### Voice Cloning
+![Voice Cloning](docs/screenshots/voice-cloning.png)
+
+### Neural Voice Mixing
+![Voice Mixing](docs/screenshots/voice-mixing.png)
+
+## Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| Frontend | Python, Streamlit |
+| Backend | Python, FastAPI, Uvicorn |
+| Text-to-Speech | Kokoro TTS |
+| Voice Cloning | PocketTTS |
+| Voice Mixing | Neural voice-vector interpolation |
+| Database | MongoDB |
+| Audio Storage | Cloudinary |
+| Authentication | JWT |
+
+## Project Structure
+
+```text
 AudioFlow/
-│
 ├── backend/
 │   ├── main.py
-│   ├── auth.py
-│   ├── database.py
-│   ├── cloudinary_config.py
-│   ├── cloudinary_service.py
-│   ├── requirements.txt
-│   ├── vercel.json
-│   └── .env
-│
+│   ├── voice_cloning.py
+│   ├── voice_mixing.py
+│   └── requirements.txt
 ├── frontend/
 │   ├── app.py
 │   └── requirements.txt
-│
-├── .gitignore
+├── docs/
+│   └── screenshots/
 └── README.md
 ```
 
----
+## Local Setup
 
-## ⚙️ Installation
-
-### 1. Clone Repository
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/AudioFlow.git
-```
-
-```bash
+git clone https://github.com/EmanZahid1644/AudioFlow.git
 cd AudioFlow
 ```
 
----
+### 2. Set up the backend
 
-### 2. Backend Setup
+Create and activate a Python 3.12 virtual environment:
 
 ```bash
 cd backend
-```
-
-Install dependencies
-
-```bash
+py -3.12 -m venv venv312
+venv312\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Run backend
+Configure the required MongoDB, Cloudinary, and authentication environment variables in `backend/.env`. Never commit credentials to Git.
+
+Start the API:
 
 ```bash
-uvicorn main:app --reload
+python -m uvicorn main:app --host 127.0.0.1 --port 8001
 ```
 
-Backend URL
+API documentation: `http://127.0.0.1:8001/docs`
 
-```
-http://127.0.0.1:8000
-```
+### 3. Set up the frontend
 
----
-
-### 3. Frontend Setup
-
-Open a new terminal
+Open another terminal from the project root:
 
 ```bash
 cd frontend
-```
-
-Install dependencies
-
-```bash
 pip install -r requirements.txt
-```
-
-Run Streamlit
-
-```bash
 streamlit run app.py
 ```
 
-Frontend URL
+Configure the frontend backend URL to point to `http://127.0.0.1:8001` for local development.
 
-```
-http://localhost:8501
-```
+Frontend: `http://localhost:8501`
 
----
+> Model dependencies, external services, and environment configuration are required for full functionality.
 
-## 🔑 Environment Variables
+## API Overview
 
-Create a `.env` file inside the `backend` folder.
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/register` | Register a user |
+| POST | `/login` | Authenticate a user |
+| GET | `/kokoro-voices` | List available Kokoro voices |
+| POST | `/generate-voice` | Generate speech from text |
+| POST | `/clone-voice` | Generate cloned speech from reference audio |
+| POST | `/voice/mix` | Mix supported voice representations |
+| POST | `/mix-voices` | Alternative voice-mixing endpoint |
 
-```env
-MONGO_URI=your_mongodb_connection_string
+Interactive request schemas are available through FastAPI Swagger UI at `/docs`.
 
-SECRET_KEY=your_secret_key
+## Responsible Use
 
-CLOUDINARY_CLOUD_NAME=your_cloud_name
+Voice cloning should only be performed with the speaker's knowledge and consent. Generated audio should not be used for impersonation, deception, or unauthorized identity replication.
 
-CLOUDINARY_API_KEY=your_api_key
+## Development Status
 
-CLOUDINARY_API_SECRET=your_api_secret
-```
+AudioFlow is a portfolio project demonstrating the integration of speech-generation models, voice processing, API development, cloud storage, authentication, and an interactive Python frontend.
 
----
-
-## 📌 API Endpoints
-
-### Register User
-
-```
-POST /register
-```
-
-### Login User
-
-```
-POST /login
-```
-
-### Upload Audio
-
-```
-POST /receive
-```
-
-Requires JWT Token.
-
----
-
-### Get User Audios
-
-```
-GET /audios
-```
-
-Requires JWT Token.
-
----
-
-## 🔒 Authentication
-
-AudioFlow uses **JWT (JSON Web Token)** authentication.
-
-After successful login, the backend returns an Access Token.
-
-Example:
-
-```
-Authorization: Bearer your_access_token
-```
-
----
-
-## ☁️ Cloudinary
-
-Uploaded audio files are securely stored on Cloudinary instead of the local server.
-
-Each upload stores:
-
-- Audio URL
-- Public ID
-- Upload Time
-- User Email
-
----
-
-## 🗄 Database
-
-MongoDB stores:
-
-### Users
-
-- Name
-- Email
-- Password (Hashed)
-
-### Audios
-
-- Filename
-- Cloudinary URL
-- Public ID
-- Uploaded By
-- Upload Date
-
----
-
-## 🎯 Future Improvements
-
-- Email Verification
-- Forgot Password
-- Delete Audio
-- Rename Audio
-- Search Audio
-- Audio Sharing
-- User Profile
-- Admin Dashboard
-- Drag & Drop Upload
-- Audio Waveform Preview
-
----
-
-## 👩‍💻 Author
+## Author
 
 **Eman Zahid**
 
-BS Computer Science  
-
-
----
-
+[GitHub](https://github.com/EmanZahid1644)
